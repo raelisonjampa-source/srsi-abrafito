@@ -22,7 +22,7 @@ def criar_solicitacao(request):
                 request,
                 f"Solicitação registrada com sucesso! Protocolo: {solicitacao.protocolo}"
             )
-            return redirect('listar_solicitacoes')
+            return redirect('criar_solicitacao')
     else:
         form = SolicitacaoForm()
 
