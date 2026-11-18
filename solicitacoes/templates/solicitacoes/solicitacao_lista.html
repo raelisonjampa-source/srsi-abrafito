@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 760px;">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Minhas Solicitações</h2>
+    <a href="{% url 'criar_solicitacao' %}" class="btn btn-primary">+ Nova Solicitação</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="mb-4 d-flex gap-2">
+    <a href="{% url 'listar_solicitacoes' %}"
+       class="btn btn-sm {% if not status_filtro %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+      Todos
+    </a>
+    <a href="{% url 'listar_solicitacoes' %}?status=pendente"
+       class="btn btn-sm {% if status_filtro == 'pendente' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+      Pendente
+    </a>
+    <a href="{% url 'listar_solicitacoes' %}?status=em_andamento"
+       class="btn btn-sm {% if status_filtro == 'em_andamento' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+      Em andamento
+    </a>
+    <a href="{% url 'listar_solicitacoes' %}?status=concluido"
+       class="btn btn-sm {% if status_filtro == 'concluido' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+      Concluído
+    </a>
+  </div>
+
+  {% if solicitacoes %}
+    <table class="table table-hover align-middle">
+      <thead>
+        <tr>
+          <th>Protocolo</th>
+          <th>Solicitante</th>
+          <th>Destinatário</th>
+          <th>Status</th>
+          <th>Criada em</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in solicitacoes %}
+          <tr>
+            <td><strong>{{ s.protocolo }}</strong></td>
+            <td>{{ s.solicitante.nome }}</td>
+            <td>{{ s.destinatario.nome }}</td>
+            <td>
+              {% if s.status == 'pendente' %}
+                <span class="badge bg-warning text-dark">Pendente</span>
+              {% elif s.status == 'em_andamento' %}
+                <span class="badge bg-primary">Em andamento</span>
+              {% else %}
+                <span class="badge bg-success">Concluído</span>
+              {% endif %}
+            </td>
+            <td>{{ s.data_hora_criacao|date:"d/m/Y H:i" }}</td>
+            <td>
+              {% if s.destinatario_id == colaborador.id and s.status != 'concluido' %}
+                <form method="post" action="{% url 'atualizar_status' s.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-primary">
+                    {% if s.status == 'pendente' %}Iniciar{% else %}Concluir{% endif %}
+                  </button>
+                </form>
+              {% else %}
+                <span class="text-muted">-</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="text-muted">Nenhuma solicitação encontrada.</p>
+  {% endif %}
+</div>
+{% endblock %}
